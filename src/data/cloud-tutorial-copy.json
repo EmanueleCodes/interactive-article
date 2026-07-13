@@ -1,0 +1,219 @@
+{
+  "intro-title": {
+    "paragraphs": [
+      "The perfect cloud animation and how to build it."
+    ]
+  },
+  "intro-subtitle": {
+    "paragraphs": [
+      "A breakdown of the design engineering principles, and the code, that make animations feel alive, so you can apply them to your own work."
+    ]
+  },
+  "the-idea-heading": {
+    "paragraphs": ["The idea."]
+  },
+  "the-idea": {
+    "paragraphs": [
+      "Chances are you don't remember, but early ChatGPT voice mode had a very similar animation. I wanted to recreate it for my personal website, but found no reference. After some thinking, some math back from when I was studying aerospace engineering and a lot of trial and errors, I'm happily bringing to you the reference I didn't find."
+    ]
+  },
+  "idea-callout": {
+    "paragraphs": [
+      {
+        "parts": [
+          {
+            "type": "text",
+            "content": "I won't go over the basics on how to set up everything. The scope of this article is more around the design choices rather than the details on how to set up a React project. For that, you can check out the starter project"
+          },
+          { "type": "accent", "href": "https://github.com/EmanueleCodes/cloud-animation/tree/starter", "content": "here." }
+        ]
+      }
+    ]
+  },
+  "setup-heading": {
+    "paragraphs": ["Set up."]
+  },
+  "setup": {
+    "paragraphs": [
+      {
+        "parts": [
+          {
+            "type": "text",
+            "content": "This project is built with"
+          },
+          {
+            "type": "link",
+            "href": "https://tanstack.com/start",
+            "content": "TanStack Start"
+          },
+          {
+            "type": "em",
+            "content": "[like, seriously, get out of the Vercel prison]"
+          },
+          {
+            "type": "text",
+            "content": ". You can download the starter"
+          },
+          { "type": "accent", "href": "https://github.com/EmanueleCodes/cloud-animation/archive/refs/heads/starter.zip", "content": "here." },
+          {
+            "type": "text",
+            "content": "Once you download the code, just run:"
+          }
+        ]
+      }
+    ]
+  },
+  "framework-heading": {
+    "paragraphs": ["The framework."]
+  },
+  "framework": {
+    "paragraphs": [
+      {
+        "parts": [
+          {
+            "type": "text",
+            "content": "When it comes to creating a great animation or interaction, the hardest part usually isn't the code, but the idea. How do you create something that"
+          },
+          { "type": "em", "content": "just feels right?" }
+        ]
+      },
+      {
+        "parts": [
+          {
+            "type": "text",
+            "content": "Here's the framework I use (I'm keeping this simple, since I'll dedicate a whole article to this, with examples and a cheatsheet):"
+          }
+        ]
+      },
+      {
+        "parts": [
+          { "type": "strong", "content": "1. Start with the concept." },
+          {
+            "type": "text",
+            "content": "What are you trying to express? For this cloud, the concept is \"thinking\": the animation plays while ChatGPT processes your request."
+          }
+        ]
+      },
+      {
+        "parts": [
+          { "type": "strong", "content": "2. Find the visual metaphor." },
+          {
+            "type": "text",
+            "content": "Ask yourself: if I had to communicate this concept without using words, how would I do it? A cloud is perfect for \"thinking\": comic books use bubbles for thoughts, so the association is immediate. Plus, clouds, like thoughts, evolve, move, they appear and disappear. So, the cloud is the perfect match."
+          }
+        ]
+      },
+      {
+        "parts": [
+          { "type": "strong", "content": "3. Ask yourself: can it move?" },
+          {
+            "type": "text",
+            "content": "If the answer is no, you are probably wrong. Just think harder. In the case of the cloud it's simple. It can absolutely move: it evolves, matter emerges from within, edges shift and reform."
+          }
+        ]
+      },
+      {
+        "parts": [
+          {
+            "type": "strong",
+            "content": "4. Once step 3 is solved, we're officially cooking."
+          },
+          {
+            "type": "text",
+            "content": "Now it's just a matter of figuring out the how. This is where design engineering is executed. You've got the metaphor, now you need to understand how it moves in the real world. Clouds don't pulse uniformly. They have internal dynamics: some parts expand while others contract, edges drift, you have subtle variations everywhere."
+          }
+        ]
+      },
+      {
+        "parts": [
+          { "type": "strong", "content": "5. Execute with motion principles." },
+          {
+            "type": "text",
+            "content": "Timing, easing, staggering, anticipation. The real-world physics you unpacked becomes the spec for your animation parameters."
+          }
+        ]
+      },
+      {
+        "parts": [
+          { "type": "strong", "content": "6. Add eye candy without overdoing." },
+          {
+            "type": "text",
+            "content": "A small detail at the edges. A subtle glow. Nice colors. Glassmorphism. Whatever, but remember: very rarely is making it overwhelming the right choice."
+          }
+        ]
+      }
+    ]
+  },
+  "shape-heading": {
+    "paragraphs": ["The shape."]
+  },
+  "shape": {
+    "paragraphs": [
+      "I tried several approaches, from Lottie, to SVG morphing, to various circle arrangements. Turns out, the simplest setup is often the most effective. Circles arranged on a circumference, with the right parameters, look like a cloud.",
+      "Play with the parameters below. Try to get something that resembles a cloud before we add motion."
+    ]
+  },
+  "compound-motion-heading": {
+    "paragraphs": ["Compound motion"]
+  },
+  "compound-motion": {
+    "paragraphs": [
+      "Now let's unpack the physics. What do clouds do? They evolve, they move, matter seems to emerge from within, edges shift and reform. Maybe a scale animation on the bubbles could do it? Like, animating the scale back and forth?",
+      "Alright, this is the way: two simple motions (scale + position) combine into something more complex. But they're still moving in sync. Clouds don't pulse like a heartbeat."
+    ]
+  },
+  "phase-distribution-heading": {
+    "paragraphs": ["Phase distribution"]
+  },
+  "phase-distribution": {
+    "paragraphs": [
+      "This is the key insight. Instead of all blobs animating in sync, we offset each blob's phase. When one is at maximum scale, another is at minimum.",
+      "The formula is simple: (index / count) * Math.PI * 2 distributes phases evenly around a full period (2π). This creates a wave that travels around the cloud.",
+      "Here's why this works mathematically: with evenly distributed phases, the sum of all blob states remains constant at any moment. One blob expanding means another is contracting by the same amount. The cloud breathes without changing its overall footprint.",
+      "This is visual stability through motion: the eye perceives continuous harmonious activity (we're using a harmonic oscillator, so the term is fitting), but the shape stays grounded. It's why the animation doesn't feel chaotic."
+    ]
+  },
+  "controlled-variation-heading": {
+    "paragraphs": ["Controlled variation"]
+  },
+  "controlled-variation": {
+    "paragraphs": [
+      "The cloud moves organically now, but all blobs are identical. Real clouds have variation: so let's add some.",
+      "The trick: add variation deterministically, using the same phase that drives the animation. Each blob gets a unique personality, but the loop stays perfect because the variation is tied to position: it's fake randomness, a technique used more than you'd think."
+    ]
+  },
+  "edge-details-heading": {
+    "paragraphs": ["Eye candy"]
+  },
+  "edge-details": {
+    "paragraphs": [
+      "The finishing touch: a \"tail\" of smaller bubbles trailing from the main body. Not necessary, but looks nice.",
+      "The tail adds visual interest without overwhelming the main shape. It's the \"eye candy without overdoing\" step from the framework."
+    ]
+  },
+  "svg-mode-heading": {
+    "paragraphs": ["SVG mode"]
+  },
+  "svg-mode": {
+    "paragraphs": [
+      "Every preview above uses plain div circles, being the fastest way to iterate. The finished cloud on this site (and the writing-label on the homepage) switches to SVG: set renderMode to outline or outlineFill. The same blob math runs unchanged; each circle becomes an SVG element with a fill layer, an inner stroke, and an outer halo from SVG filters. You get crisp edges at any scale and the soft outline look of the real thing."
+    ]
+  },
+  "conclusion-heading": {
+    "paragraphs": ["The principles"]
+  },
+  "conclusion-intro": {
+    "paragraphs": ["Here's the final result with everything combined:"]
+  },
+  "conclusion-body": {
+    "paragraphs": [
+      "Four principles that make organic animation feel alive:",
+      "Compound motion: layer simple animations to create complex movement.",
+      "Phase distribution: evenly distribute phases for seamless stagger loops. (index/count × 2π) creates waves that loop perfectly and maintain visual stability.",
+      "Controlled variation: try deriving variation from the animation phase itself, not just randomness. Use the same phase that drives the animation.",
+      "Eye candy: add interest at the periphery without overwhelming the core.",
+      "These principles apply to any organic animation: clouds, particle systems, loading indicators. Start with the framework, unpack the physics, and apply these four techniques.",
+      "In the era of AI, execution is simple. Your job as a design engineer is to think."
+    ]
+  }
+}

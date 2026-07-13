@@ -1,0 +1,833 @@
+@import 'tailwindcss';
+
+/* =============================================================================
+   FLUID TYPE — tweak sizes here
+   (Formulas further down read these automatically. 1rem = 16px.)
+   ============================================================================= */
+
+:root {
+    /* --- Hero heading: "Hello there, I'm Emanuele" --- */
+    --hero-mobile-min: 3rem; /* 56px · narrow phone (320px) */
+    --hero-mobile-max: 4rem; /* 60px · end of mobile (480px) */
+    --hero-tablet-min: 4.5rem; /* 60px · start of tablet (480px) */
+    --hero-tablet-max: 6rem; /* 76px · end of tablet (1024px) */
+    --hero-desktop-min: 4.275rem; /* 68.4px · start of desktop (1024px) — 90% of 76px */
+    --hero-desktop-max: 4.95rem; /* 79.2px · wide desktop (1280px) — 90% of 80px */
+
+    /* --- Hero intro paragraph --- */
+    --body-lg-mobile-min: 1rem; /* 16px */
+    --body-lg-mobile-max: 1.125rem; /* 18px */
+    --body-lg-tablet-min: 1.125rem; /* 18px */
+    --body-lg-tablet-max: 1.3125rem; /* 21px */
+    --body-lg-desktop-min: 1.1875rem; /* 19px — 90% of 21px */
+    --body-lg-desktop-max: 1.35rem; /* 21.6px — 90% of 24px */
+
+    /* --- Viewport bounds (when each segment starts / ends) --- */
+    --fluid-bp-sm: 20rem; /* 320px */
+    --fluid-bp-md: 30rem; /* 480px */
+    --fluid-bp-lg: 64rem; /* 1024px */
+    --fluid-bp-xl: 80rem; /* 1280px */
+
+    /* --- Prompt box scale (proportional shrink as container narrows) --- */
+    --prompt-scale-min: 0.78; /* smallest multiplier */
+    --prompt-scale-max: 1; /* design size at full width */
+    --prompt-width-min: 280px; /* container width at min scale */
+    --prompt-width-max: 980px; /* design max width */
+
+    /* --- Navbar fluid typography --- */
+    --nav-heading-mobile: 1.375rem; /* 22px */
+    --nav-heading-desktop: 1.75rem; /* 28px */
+    --nav-hero-mobile: 1.375rem; /* 22px */
+    --nav-hero-desktop: 1.9375rem; /* 31px */
+    --nav-body-mobile: 0.875rem; /* 14px */
+    --nav-body-desktop: 1rem; /* 16px */
+    --nav-lg-mobile: 0.9375rem; /* 15px */
+    --nav-lg-desktop: 1.125rem; /* 18px */
+    --nav-md-mobile: 0.8125rem; /* 13px */
+    --nav-md-desktop: 1rem; /* 16px (text-md) */
+
+    /* Base sizes at scale 1 — unitless px, multiplied by --prompt-scale in .prompt-box */
+    --prompt-outer-radius: 40;
+    --prompt-inner-radius: 32;
+    --prompt-outer-padding: 8;
+    --prompt-inner-padding: 16;
+    --prompt-inner-gap: 12;
+    --prompt-chip-width: 210;
+    --prompt-chip-padding: 4;
+    --prompt-chip-mobile-padding-end: 8;
+    --prompt-chip-gap: 8;
+    --prompt-chip-radius: 16;
+    --prompt-chip-icon: 42;
+    --prompt-chip-icon-radius: 12;
+    --prompt-chip-title: 17;
+    --prompt-chip-subtitle: 14;
+    --prompt-chip-close: 16;
+    --prompt-chip-close-icon: 12;
+    --prompt-chip-close-top: -4;
+    --prompt-chip-close-right: -4;
+    --prompt-chip-height: 72;
+    --prompt-chip-gap-between: 10;
+    --prompt-gap-to-input: 16;
+    --prompt-text-size: 19;
+    --prompt-bar-height: 36;
+    --prompt-bar-gap: 8;
+    --prompt-add-file-size: 18;
+    --prompt-send-size: 36;
+    --prompt-send-icon: 24;
+    --prompt-send-padding: 2;
+    --prompt-inline-chip-radius: 5;
+    --prompt-inline-chip-padding: 2;
+    --prompt-cursor-width: 2;
+}
+
+/* PP Mori variable font – public/fonts/PP Mori Variable/ */
+@font-face {
+    font-family: 'PP Mori';
+    src: url('/fonts/PP Mori Variable/PPMori-Variable.woff2') format('woff2');
+    font-weight: 1 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Cooper Lt BT – display / content headings */
+@font-face {
+    font-family: 'Cooper Lt BT';
+    src: url('/fonts/Cooper Lt BT Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Geist Mono – local fonts */
+@font-face {
+    font-family: 'Geist Mono';
+    src: url('/fonts/GeistMono/GeistMono-Variable.woff2') format('woff2');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@theme {
+    /* Color System */
+    --color-background: #fcfcfc;
+    --color-black: #000000;
+    --color-gray: #eaeaea;
+
+    /* Black Scale (from white to black) */
+    --color-black-50: #ffffff;
+    --color-black-100: #f5f5f5;
+    --color-black-200: #e5e5e5;
+    --color-black-300: #d4d4d4;
+    --color-black-400: #a3a3a3;
+    --color-black-500: #737373;
+    --color-black-600: #525252;
+    --color-black-700: #404040;
+    --color-black-800: #2f2f2f;
+    --color-black-900: #171717;
+    --color-black-950: #000000;
+
+    /* Brand accent — pills, selection, prompt cursor, intro ramp */
+    --color-brand: #013cff;
+
+    /* Prompt box & chips */
+    --color-prompt-bg: var(--color-black-100);
+    --color-chip-bg: var(--color-black-200);
+    --color-prompt-border: var(--color-black-200);
+
+    /* Mono label (banner / bracket style): Geist Mono grey */
+    --color-mono-label: #8e8e8e;
+
+    /* Typography – PP Mori + Cooper Lt BT */
+    --font-family-sans:
+        'PP Mori', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-family-mori: 'PP Mori', sans-serif;
+    --font-family-serif: 'Cooper Lt BT', Georgia, serif;
+    --font-family-mono: 'Geist Mono', ui-monospace, monospace;
+
+    /* Mori-specific sizes (from design: greeting 18px, body 17px, headline 64px) */
+    --font-size-greeting: 1.125rem; /* 18px */
+    --font-size-body: 1.0625rem; /* 17px */
+    --font-size-h1: 3rem; /* 48px base, 64px md */
+    /* Fluid H1: linearly scales 2rem → 4rem between 360px and 1200px viewport (clamp) */
+    --font-size-h1-fluid: clamp(2rem, 1.143rem + 3.81vw, 4rem);
+    /* Fluid prompt: min 16px, max 18px (same viewport range) */
+    --font-size-prompt-fluid: clamp(1rem, 0.946rem + 0.238vw, 1.125rem);
+    /* Fluid button text: 14px → 18px */
+    --font-size-button-fluid: clamp(0.875rem, 0.768rem + 0.476vw, 1.125rem);
+    /* Fluid button padding: smaller range for tighter buttons */
+    --padding-y-button-fluid: clamp(0.375rem, 0.2rem + 0.5vw, 0.625rem);
+    --padding-x-button-fluid: clamp(0.625rem, 0.3rem + 1vw, 1.25rem);
+
+    /*
+     * Fluid typography — clamp() built from :root tweak vars above.
+     * Formula: MIN + (MAX − MIN) × (100vw − start) / (end − start)
+     */
+    /* Segment 1 — mobile (320px → 480px) */
+    --text-display-hero: clamp(
+        var(--hero-mobile-min),
+        calc(
+            var(--hero-mobile-min) + (var(--hero-mobile-max) - var(--hero-mobile-min)) *
+                ((100vw - var(--fluid-bp-sm)) /
+                    (var(--fluid-bp-md) - var(--fluid-bp-sm)))
+        ),
+        var(--hero-mobile-max)
+    );
+    --text-body-lg: clamp(
+        var(--body-lg-mobile-min),
+        calc(
+            var(--body-lg-mobile-min) +
+                (var(--body-lg-mobile-max) - var(--body-lg-mobile-min)) *
+                ((100vw - var(--fluid-bp-sm)) /
+                    (var(--fluid-bp-md) - var(--fluid-bp-sm)))
+        ),
+        var(--body-lg-mobile-max)
+    );
+
+    --text-display-cta: clamp(3rem, 0.182rem + 14.09vw, 11.25rem);
+    --text-body-md: clamp(0.9375rem, 0.83rem + 0.54vw, 1.125rem);
+    --text-heading-sm: clamp(1.25rem, 0.977rem + 1.36vw, 1.75rem);
+
+    --font-size-h2: 2rem;
+    --font-size-h3: 1.5rem;
+
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 1.875rem;
+    --font-size-4xl: 2.25rem;
+    --font-size-5xl: 3rem;
+    --font-size-6xl: 3.75rem;
+    --font-size-7xl: 4.5rem;
+
+    --font-weight-book: 350;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    --line-height-tight: 1.2;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.75;
+    --line-height-body: 1.2;
+}
+
+/* Segment 2 — tablet (480px → 1024px) */
+@media (min-width: 30rem) {
+    :root {
+        --text-display-hero: clamp(
+            var(--hero-tablet-min),
+            calc(
+                var(--hero-tablet-min) + (var(--hero-tablet-max) - var(--hero-tablet-min)) *
+                    ((100vw - var(--fluid-bp-md)) /
+                        (var(--fluid-bp-lg) - var(--fluid-bp-md)))
+            ),
+            var(--hero-tablet-max)
+        );
+        --text-body-lg: clamp(
+            var(--body-lg-tablet-min),
+            calc(
+                var(--body-lg-tablet-min) +
+                    (var(--body-lg-tablet-max) - var(--body-lg-tablet-min)) *
+                    ((100vw - var(--fluid-bp-md)) /
+                        (var(--fluid-bp-lg) - var(--fluid-bp-md)))
+            ),
+            var(--body-lg-tablet-max)
+        );
+    }
+}
+
+/* Segment 3 — desktop (1024px → 1280px) */
+@media (min-width: 64rem) {
+    :root {
+        --text-display-hero: clamp(
+            var(--hero-desktop-min),
+            calc(
+                var(--hero-desktop-min) +
+                    (var(--hero-desktop-max) - var(--hero-desktop-min)) *
+                    ((100vw - var(--fluid-bp-lg)) /
+                        (var(--fluid-bp-xl) - var(--fluid-bp-lg)))
+            ),
+            var(--hero-desktop-max)
+        );
+        --text-body-lg: clamp(
+            var(--body-lg-desktop-min),
+            calc(
+                var(--body-lg-desktop-min) +
+                    (var(--body-lg-desktop-max) - var(--body-lg-desktop-min)) *
+                    ((100vw - var(--fluid-bp-lg)) /
+                        (var(--fluid-bp-xl) - var(--fluid-bp-lg)))
+            ),
+            var(--body-lg-desktop-max)
+        );
+    }
+}
+
+/* Desktop prompt — scale entire box ~10% smaller at full width */
+@media (min-width: 64rem) {
+    .prompt-box {
+        --prompt-scale-max: 0.9;
+    }
+}
+
+/*
+ * Prompt box — proportional scale from container width.
+ * All --p-* vars are used by prompt components; tweak base sizes in :root above.
+ */
+.prompt-box {
+    container-type: inline-size;
+
+    --prompt-scale: clamp(
+        var(--prompt-scale-min),
+        calc(
+            var(--prompt-scale-min) + (var(--prompt-scale-max) - var(--prompt-scale-min)) *
+                ((100cqw - var(--prompt-width-min)) /
+                    (var(--prompt-width-max) - var(--prompt-width-min)))
+        ),
+        var(--prompt-scale-max)
+    );
+
+    --p-max-width: calc(var(--prompt-width-max) * 1px);
+    --p-outer-radius: calc(var(--prompt-outer-radius) * var(--prompt-scale) * 1px);
+    --p-inner-radius: calc(var(--prompt-inner-radius) * var(--prompt-scale) * 1px);
+    --p-outer-padding: calc(var(--prompt-outer-padding) * var(--prompt-scale) * 1px);
+    --p-inner-padding: calc(var(--prompt-inner-padding) * var(--prompt-scale) * 1px);
+    --p-inner-gap: calc(var(--prompt-inner-gap) * var(--prompt-scale) * 1px);
+    --p-chip-width: calc(var(--prompt-chip-width) * var(--prompt-scale) * 1px);
+    --p-chip-padding: calc(var(--prompt-chip-padding) * var(--prompt-scale) * 1px);
+    --p-chip-mobile-padding-end: calc(
+        var(--prompt-chip-mobile-padding-end) * var(--prompt-scale) * 1px
+    );
+    --p-chip-gap: calc(var(--prompt-chip-gap) * var(--prompt-scale) * 1px);
+    --p-chip-radius: calc(var(--prompt-chip-radius) * var(--prompt-scale) * 1px);
+    --p-chip-icon: calc(var(--prompt-chip-icon) * var(--prompt-scale) * 1px);
+    --p-chip-icon-radius: calc(
+        var(--prompt-chip-icon-radius) * var(--prompt-scale) * 1px
+    );
+    --p-chip-title: calc(var(--prompt-chip-title) * var(--prompt-scale) * 1px);
+    --p-chip-subtitle: calc(var(--prompt-chip-subtitle) * var(--prompt-scale) * 1px);
+    --p-chip-close: calc(var(--prompt-chip-close) * var(--prompt-scale) * 1px);
+    --p-chip-close-icon: calc(
+        var(--prompt-chip-close-icon) * var(--prompt-scale) * 1px
+    );
+    --p-chip-close-top: calc(var(--prompt-chip-close-top) * var(--prompt-scale) * 1px);
+    --p-chip-close-right: calc(
+        var(--prompt-chip-close-right) * var(--prompt-scale) * 1px
+    );
+    --p-chip-height: calc(var(--prompt-chip-height) * var(--prompt-scale) * 1px);
+    --p-chip-gap-between: calc(
+        var(--prompt-chip-gap-between) * var(--prompt-scale) * 1px
+    );
+    --p-gap-to-input: calc(var(--prompt-gap-to-input) * var(--prompt-scale) * 1px);
+    --p-text-size: calc(var(--prompt-text-size) * var(--prompt-scale) * 1px);
+    --p-bar-height: calc(var(--prompt-bar-height) * var(--prompt-scale) * 1px);
+    --p-bar-gap: calc(var(--prompt-bar-gap) * var(--prompt-scale) * 1px);
+    --p-add-file-size: calc(var(--prompt-add-file-size) * var(--prompt-scale) * 1px);
+    --p-send-size: calc(var(--prompt-send-size) * var(--prompt-scale) * 1px);
+    --p-send-icon: calc(var(--prompt-send-icon) * var(--prompt-scale) * 1px);
+    --p-send-padding: calc(var(--prompt-send-padding) * var(--prompt-scale) * 1px);
+    --p-inline-chip-radius: calc(
+        var(--prompt-inline-chip-radius) * var(--prompt-scale) * 1px
+    );
+    --p-inline-chip-padding: calc(
+        var(--prompt-inline-chip-padding) * var(--prompt-scale) * 1px
+    );
+    --p-cursor-width: calc(var(--prompt-cursor-width) * var(--prompt-scale) * 1px);
+}
+
+.prompt-file-chip {
+    width: var(--p-chip-width);
+    padding: var(--p-chip-padding);
+}
+
+@media (max-width: 767px) {
+    .prompt-file-chip {
+        width: fit-content;
+        max-width: min(100%, var(--p-chip-width));
+        padding-right: calc(
+            var(--p-chip-padding) + var(--p-chip-mobile-padding-end) +
+                var(--p-chip-close) * 0.5
+        );
+    }
+
+    .prompt-file-chip__content {
+        flex: 0 1 auto;
+        width: auto;
+    }
+
+    .prompt-file-chip__title,
+    .prompt-file-chip__subtitle {
+        width: auto;
+        max-width: 100%;
+    }
+
+    .navbar-toggle-bars {
+        --navbar-toggle-bar-width: 18px;
+    }
+}
+
+/** SSR + first paint: hide shell until GSAP drop-in (`useNavbarIntroAnimation`). */
+.navbar-shell-intro-pending {
+    transform: translateY(calc(-100% - 24px));
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .navbar-shell-intro-pending {
+        transform: none;
+    }
+}
+
+/* Color utilities only (theme colors used via Tailwind) */
+@layer utilities {
+    .bg-background {
+        background-color: var(--color-background);
+    }
+    .text-black-custom {
+        color: var(--color-black);
+    }
+    .bg-gray-custom {
+        background-color: var(--color-gray);
+    }
+    .bg-prompt-bg {
+        background-color: var(--color-prompt-bg);
+    }
+    .bg-chip-bg {
+        background-color: var(--color-chip-bg);
+    }
+
+    .font-mori {
+        font-family: 'PP Mori', sans-serif !important;
+    }
+
+    .font-serif {
+        font-family: var(--font-family-serif);
+    }
+
+    .font-geist-mono {
+        font-family: var(--font-family-mono);
+    }
+
+    .text-content-h1 {
+        font-family: var(--font-family-serif);
+        font-size: 4rem;
+        font-weight: 300;
+        line-height: 1.2;
+        letter-spacing: 0;
+    }
+
+    .text-content-body-md {
+        font-family: var(--font-family-sans);
+        font-size: 1.25rem;
+        font-weight: 400;
+        line-height: 1.4;
+        letter-spacing: 0;
+    }
+
+    .text-content-serif-label {
+        font-family: var(--font-family-serif);
+        font-size: 1rem;
+        font-weight: 300;
+        line-height: 1.125;
+        letter-spacing: 0;
+    }
+
+    /* Blog / long-form code articles — mobile-first, scales up at md (768px) */
+    .text-blog-h1 {
+        font-family: var(--font-family-serif);
+        font-size: 2.25rem;
+        font-weight: 300;
+        line-height: 2.75rem;
+        letter-spacing: 0;
+    }
+
+    .text-blog-h2 {
+        font-family: var(--font-family-serif);
+        font-size: 1.75rem;
+        font-weight: 300;
+        line-height: 2.25rem;
+        letter-spacing: 0;
+    }
+
+    .text-blog-h3 {
+        font-family: var(--font-family-serif);
+        font-size: 1.5rem;
+        font-weight: 300;
+        line-height: 2rem;
+        letter-spacing: 0;
+    }
+
+    .text-blog-h4 {
+        font-family: var(--font-family-serif);
+        font-size: 1.375rem;
+        font-weight: 300;
+        line-height: 1.875rem;
+        letter-spacing: 0;
+    }
+
+    .text-blog-h5 {
+        font-family: var(--font-family-serif);
+        font-size: 1.25rem;
+        font-weight: 300;
+        line-height: 1.75rem;
+        letter-spacing: 0;
+    }
+
+    .text-blog-h6 {
+        font-family: var(--font-family-serif);
+        font-size: 1.125rem;
+        font-weight: 300;
+        line-height: 1.625rem;
+        letter-spacing: 0;
+    }
+
+    .text-blog-body {
+        font-family: var(--font-family-sans);
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.51;
+        letter-spacing: 0;
+    }
+
+    .text-blog-meta {
+        font-family: var(--font-family-sans);
+        font-size: 0.8125rem;
+        font-weight: 400;
+        line-height: 1.2;
+        letter-spacing: 0;
+    }
+
+    @media (min-width: 768px) {
+        .text-blog-h1 {
+            font-size: 3rem;
+            line-height: 3.875rem;
+        }
+
+        .text-blog-h2 {
+            font-size: 2.5rem;
+            line-height: 3.25rem;
+        }
+
+        .text-blog-h3 {
+            font-size: 2rem;
+            line-height: 2.625rem;
+        }
+
+        .text-blog-h4 {
+            font-size: 1.75rem;
+            line-height: 2.25rem;
+        }
+
+        .text-blog-h5 {
+            font-size: 1.5rem;
+            line-height: 2rem;
+        }
+
+        .text-blog-h6 {
+            font-size: 1.25rem;
+            line-height: 1.75rem;
+        }
+
+        .text-blog-body {
+            font-size: 1.125rem;
+        }
+
+        .text-blog-meta {
+            font-size: 0.875rem;
+        }
+    }
+
+    .text-ui-base {
+        font-family: var(--font-family-sans);
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.125;
+        letter-spacing: 0;
+    }
+
+    .text-mono-base {
+        font-family: var(--font-family-mono);
+        font-size: 0.875rem;
+        font-weight: 400;
+        line-height: 1.125;
+        letter-spacing: 0;
+    }
+
+    /** Mono label: Geist Mono, 14px, uppercase, -0.02em, 120% line-height, grey (banner style) */
+    .text-mono-label {
+        font-family: 'Geist Mono', ui-monospace, monospace;
+        font-size: 0.875rem;
+        font-weight: 400;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+        text-transform: uppercase;
+        color: var(--color-mono-label);
+    }
+
+    .font-book {
+        font-weight: var(--font-weight-book);
+    }
+
+    /** Fluid headline: scales linearly with viewport (Osmo-style / CSS-Tricks clamp) */
+    .text-fluid-h1 {
+        font-size: var(--font-size-h1-fluid);
+    }
+
+    /** Home fluid typography scale (3 segments via --text-* on :root) */
+    .text-fluid-display-hero {
+        font-size: var(--text-display-hero);
+    }
+    .text-fluid-display-cta {
+        font-size: var(--text-display-cta);
+    }
+    .text-fluid-body-lg {
+        font-size: var(--text-body-lg);
+    }
+    .text-fluid-body-md {
+        font-size: var(--text-body-md);
+    }
+    .text-fluid-heading-sm {
+        font-size: var(--text-heading-sm);
+    }
+
+    /** Fluid prompt area text: min 16px, max 18px */
+    .text-fluid-prompt {
+        font-size: var(--font-size-prompt-fluid);
+    }
+
+    /** Fluid button: text + padding scale linearly with viewport */
+    .text-fluid-button {
+        font-size: var(--font-size-button-fluid);
+    }
+    .py-fluid-button {
+        padding-block: var(--padding-y-button-fluid);
+    }
+    .px-fluid-button {
+        padding-inline: var(--padding-x-button-fluid);
+    }
+
+    /** Navbar fluid typography — scales from mobile to md breakpoint (768px) */
+    .text-nav-heading {
+        font-size: clamp(
+            var(--nav-heading-mobile),
+            calc(var(--nav-heading-mobile) + (var(--nav-heading-desktop) - var(--nav-heading-mobile)) * ((100vw - 320px) / (768px - 320px))),
+            var(--nav-heading-desktop)
+        );
+    }
+    .text-nav-hero {
+        font-size: clamp(
+            var(--nav-hero-mobile),
+            calc(var(--nav-hero-mobile) + (var(--nav-hero-desktop) - var(--nav-hero-mobile)) * ((100vw - 320px) / (768px - 320px))),
+            var(--nav-hero-desktop)
+        );
+    }
+    .text-nav-body {
+        font-size: clamp(
+            var(--nav-body-mobile),
+            calc(var(--nav-body-mobile) + (var(--nav-body-desktop) - var(--nav-body-mobile)) * ((100vw - 320px) / (768px - 320px))),
+            var(--nav-body-desktop)
+        );
+    }
+    .text-nav-lg {
+        font-size: clamp(
+            var(--nav-lg-mobile),
+            calc(var(--nav-lg-mobile) + (var(--nav-lg-desktop) - var(--nav-lg-mobile)) * ((100vw - 320px) / (768px - 320px))),
+            var(--nav-lg-desktop)
+        );
+    }
+    .text-nav-md {
+        font-size: clamp(
+            var(--nav-md-mobile),
+            calc(var(--nav-md-mobile) + (var(--nav-md-desktop) - var(--nav-md-mobile)) * ((100vw - 320px) / (768px - 320px))),
+            var(--nav-md-desktop)
+        );
+    }
+
+    /** Sidebar nav links only — does not affect other navbar text */
+    .text-nav-sidebar-link {
+        font-size: 1.125rem; /* 18px */
+    }
+
+    /** Contact CTA — responsive pill slot position (mobile overrides via CSS vars) */
+    .contact-floating-pill-slot {
+        left: var(--pill-x);
+        top: var(--pill-y);
+    }
+    .contact-floating-pill-anchor {
+        transform: translateX(var(--pill-anchor-x, 0));
+    }
+    @media (min-width: 768px) {
+        .contact-floating-pill-slot {
+            left: var(--pill-x-md);
+            top: var(--pill-y-md);
+        }
+        .contact-floating-pill-anchor {
+            transform: translateX(var(--pill-anchor-x-md, 0));
+        }
+    }
+
+    @keyframes cursor-blink {
+        0%,
+        50% {
+            opacity: 1;
+        }
+        51%,
+        100% {
+            opacity: 0;
+        }
+    }
+    .animate-cursor-blink {
+        animation: cursor-blink 1s step-end infinite;
+    }
+
+    @supports (corner-shape: superellipse(1.5)) {
+        .corner-superellipse {
+            corner-shape: superellipse(1.3);
+        }
+    }
+
+    /* Blog code blocks — blog phase-wave Shiki theme (see shiki.ts) + Geist Mono 14px */
+    .blog-shiki pre.shiki {
+        margin: 0;
+        padding: 0;
+        background: transparent !important;
+        font-family: var(--font-family-mono);
+        font-size: 0.875rem;
+        line-height: 21px;
+        /* Collapse \n between block .line spans (avoids double spacing) */
+        white-space: normal;
+    }
+
+    .blog-shiki pre.shiki code {
+        display: block;
+        font-family: inherit;
+        font-size: inherit;
+        line-height: inherit;
+        white-space: normal;
+    }
+
+    .blog-shiki .line {
+        display: block;
+        height: 21px;
+        line-height: 21px;
+        /* Preserve leading indentation within each line */
+        white-space: pre;
+    }
+
+    /* Read-only snippets — no browser focus ring when selecting or tabbing code */
+    .blog-shiki-readonly,
+    .blog-shiki-readonly pre.shiki,
+    .blog-shiki-readonly pre.shiki:focus,
+    .blog-shiki-readonly pre.shiki:focus-visible,
+    .blog-shiki-readonly:focus,
+    .blog-shiki-readonly:focus-visible,
+    .blog-shiki-readonly:focus-within {
+        outline: none !important;
+        box-shadow: none !important;
+    }
+
+    /* Editable snippet — overlay shows Shiki (incl. bold keywords); textarea stays uniform */
+    .blog-shiki-editable-overlay pre.shiki,
+    .blog-shiki-editable-input {
+        box-sizing: border-box;
+        font-variant-ligatures: none;
+        font-variant-numeric: tabular-nums;
+        font-feature-settings: normal;
+        font-kerning: none;
+        letter-spacing: normal;
+        tab-size: 4;
+    }
+
+    .blog-shiki-editable-input {
+        color: transparent;
+        caret-color: #fff;
+        font-weight: 400;
+    }
+
+    .blog-shiki-editable-overlay .shiki .line > span {
+        display: contents;
+        font-style: normal !important;
+    }
+}
+
+html {
+    /* Reserve scrollbar space so vw doesn’t jump when the scrollbar appears (fixes fluid H1 jump ~1117px) */
+    scrollbar-gutter: stable;
+    background-color: #141414;
+}
+
+body {
+    margin: 0;
+    font-family: 'PP Mori', sans-serif;
+    background-color: #141414;
+    color: var(--color-black);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+    background-color: var(--color-brand);
+    color: #ffffff;
+}
+
+::-moz-selection {
+    background-color: var(--color-brand);
+    color: #ffffff;
+}
+
+/* Hero CTA buttons: hover border from heroConfig (--hover-border set inline) */
+.hero-cta:hover {
+    border: var(--hover-border) !important;
+}
+
+code {
+    font-family:
+        source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+/* DialKit: top-right panel doesn't ship with overflow scroll */
+.dialkit-panel-inner:not([data-collapsed='true']) {
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.dialkit-panel-inner:not([data-collapsed='true']) {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.dialkit-panel-inner:not([data-collapsed='true'])::-webkit-scrollbar {
+    display: block;
+    width: 6px;
+}
+
+.dialkit-panel-inner:not([data-collapsed='true'])::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+}
+
+/* Narration “Magic cursor” — hide system pointer except over interactive UI */
+html.magic-cursor-active:not(.magic-cursor-passthrough),
+html.magic-cursor-active:not(.magic-cursor-passthrough) * {
+    cursor: none !important;
+}
+
+html.magic-cursor-active.magic-cursor-passthrough
+    [data-magic-cursor-ignore]
+    :is(button, [role='button'], a, label[for], summary) {
+    cursor: pointer !important;
+}
+
+html.magic-cursor-active.magic-cursor-passthrough
+    [data-magic-cursor-ignore]
+    .cursor-grab {
+    cursor: grab !important;
+}
+
+html.magic-cursor-active.magic-cursor-passthrough
+    [data-magic-cursor-ignore]
+    .cursor-grabbing {
+    cursor: grabbing !important;
+}
