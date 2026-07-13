@@ -23,6 +23,8 @@ npm install
 npm run dev
 ```
 
+The dev server runs at `http://localhost:5173/`. If that port is already busy, stop the old server and run `npm run dev` again.
+
 Build for production:
 
 ```bash
