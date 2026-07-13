@@ -4,3 +4,8 @@ dist
 .DS_Store
 .env
 .env.*
+
+# Optional private font files for local/demo-only builds.
+# The public repo uses the Inter/system stack.
+public/fonts/Cooper Lt BT Light.ttf
+public/fonts/PP Mori Variable/

@@ -40,6 +40,13 @@ import {
     type NarrationPlaybackRate,
 } from './playbackRate'
 
+const NARRATION_DEBUG = true
+
+function logNarration(event: string, details?: Record<string, unknown>) {
+    if (!NARRATION_DEBUG) return
+    console.log(`[narration] ${event}`, details ?? {})
+}
+
 type PlayheadStore = {
     time: number
     activeSegment: string | null
@@ -476,9 +483,24 @@ export function NarrationProvider({
     const seek = useCallback(
         (time: number) => {
             const max = isDemo ? mockDuration : duration
-            if (max <= 0 && !isDemo) return
+            if (max <= 0 && !isDemo) {
+                logNarration('seek ignored: audio duration unavailable', {
+                    requestedTime: time,
+                    duration,
+                    mockDuration,
+                    isDemo,
+                })
+                return
+            }
 
             const clamped = syncPlayhead(time, true)
+            logNarration('seek', {
+                requestedTime: time,
+                clamped,
+                max,
+                isDemo,
+                audioCurrentTime: audioElement?.currentTime,
+            })
             clearPassedCheckpointsAfter(clamped)
             prevPlayheadRef.current = clamped
             // Clear saved pause state since user explicitly seeked
@@ -637,15 +659,46 @@ export function NarrationProvider({
     /** Map viewport-center word to time when resuming; pin to start/end at scroll extremes */
     const getTimeFromScrollPosition = useCallback(() => {
         const max = isDemo ? mockDuration : duration
-        if (max <= 0) return 0
+        if (max <= 0) {
+            logNarration('scroll start time: max unavailable', {
+                duration,
+                mockDuration,
+                isDemo,
+            })
+            return 0
+        }
 
         const scrollRatio = measureScrollProgressFallback()
-        if (scrollRatio <= 0.01) return 0
-        if (scrollRatio >= 0.99) return max
+        if (scrollRatio <= 0.01) {
+            logNarration('scroll start time: top of article', {
+                scrollRatio,
+                max,
+            })
+            return 0
+        }
+        if (scrollRatio >= 0.99) {
+            logNarration('scroll start time: end of article', {
+                scrollRatio,
+                max,
+            })
+            return max
+        }
 
         const centerTime = getTimeAtViewportCenter(transcript)
-        if (centerTime != null) return centerTime
+        if (centerTime != null) {
+            logNarration('scroll start time: viewport center word', {
+                scrollRatio,
+                centerTime,
+                max,
+            })
+            return centerTime
+        }
 
+        logNarration('scroll start time: ratio fallback', {
+            scrollRatio,
+            fallbackTime: scrollRatio * max,
+            max,
+        })
         return scrollRatio * max
     }, [
         duration,
@@ -656,7 +709,10 @@ export function NarrationProvider({
     ])
 
     const toggleMagicCursor = useCallback(() => {
-        setMagicCursorEnabled((on) => !on)
+        setMagicCursorEnabled((on) => {
+            logNarration('magic cursor toggle', { nextEnabled: !on })
+            return !on
+        })
     }, [])
 
     const toggleCheckpoints = useCallback(() => {
@@ -729,7 +785,13 @@ export function NarrationProvider({
 
     const getPlaybackStartTime = useCallback(() => {
         // Checkpoint resume takes priority
-        if (pausedCheckpoint) return pausedCheckpoint.resumeTime
+        if (pausedCheckpoint) {
+            logNarration('playback start time: checkpoint resume', {
+                pauseTime: pausedCheckpoint.pauseTime,
+                resumeTime: pausedCheckpoint.resumeTime,
+            })
+            return pausedCheckpoint.resumeTime
+        }
         
         // Get the time based on current scroll/viewport position
         const scrollTime = getTimeFromScrollPosition()
@@ -743,20 +805,49 @@ export function NarrationProvider({
             const timeDiff = Math.abs(scrollTime - pauseTime)
             const threshold = max * 0.03 // 3% of total duration
             if (timeDiff <= threshold) {
+                logNarration('playback start time: saved pause', {
+                    pauseTime,
+                    scrollTime,
+                    timeDiff,
+                    threshold,
+                })
                 return pauseTime
             }
+            logNarration('playback start time: scroll differs from pause', {
+                pauseTime,
+                scrollTime,
+                timeDiff,
+                threshold,
+            })
         }
         
         // Fresh start or scroll position differs: use scroll-based time
+        logNarration('playback start time: scroll-based', { scrollTime })
         return scrollTime
     }, [pausedCheckpoint, getTimeFromScrollPosition, duration, mockDuration])
 
     const playFromTime = useCallback(
         (time: number) => {
             const max = isDemo ? mockDuration : duration
-            if (max <= 0 && !isDemo) return
+            if (max <= 0 && !isDemo) {
+                logNarration('playFromTime ignored: audio duration unavailable', {
+                    requestedTime: time,
+                    duration,
+                    mockDuration,
+                    isDemo,
+                })
+                return
+            }
 
             const clamped = syncPlayhead(time, true)
+            logNarration('playFromTime', {
+                requestedTime: time,
+                clamped,
+                max,
+                isDemo,
+                audioCurrentTime: audioElement?.currentTime,
+                audioReadyState: audioElement?.readyState,
+            })
             clearPassedCheckpointsAfter(clamped)
             prevPlayheadRef.current = clamped
             // Clear saved pause state since we're starting from a specific time
@@ -764,20 +855,38 @@ export function NarrationProvider({
             setPausedCheckpoint(null)
 
             if (isDemo) {
+                logNarration('playFromTime: demo play', { clamped })
                 setIsPlaying(true)
                 return
             }
 
             const audio = audioRef.current ?? audioElement
-            if (!audio) return
+            if (!audio) {
+                logNarration('playFromTime ignored: missing audio element', {
+                    clamped,
+                })
+                return
+            }
 
             if (Math.abs(audio.currentTime - clamped) > 0.02) {
+                logNarration('playFromTime: setting audio currentTime', {
+                    from: audio.currentTime,
+                    to: clamped,
+                })
                 audio.currentTime = clamped
             }
 
             void audio.play().then(
-                () => setIsPlaying(true),
                 () => {
+                    logNarration('playFromTime: audio play resolved', {
+                        currentTime: audio.currentTime,
+                    })
+                    setIsPlaying(true)
+                },
+                (error) => {
+                    logNarration('playFromTime: audio play rejected', {
+                        error: String(error),
+                    })
                     setAudioFailed(true)
                     setIsPlaying(false)
                 },
@@ -794,15 +903,30 @@ export function NarrationProvider({
     )
 
     const toggle = useCallback(() => {
+        logNarration('toggle requested', {
+            isDemo,
+            isPlaying,
+            playhead: playheadRef.current,
+            lastPausedTime: lastPausedTimeRef.current,
+            duration,
+            mockDuration,
+            audioCurrentTime: audioElement?.currentTime,
+            audioPaused: audioElement?.paused,
+            audioReadyState: audioElement?.readyState,
+        })
         if (isDemo) {
             setIsPlaying((playing) => {
                 if (playing) {
                     // Save the current time for reliable resume
                     lastPausedTimeRef.current = playheadRef.current
+                    logNarration('toggle: demo pause', {
+                        savedPauseTime: lastPausedTimeRef.current,
+                    })
                     setPausedCheckpoint(null)
                     return false
                 }
                 const startAt = getPlaybackStartTime()
+                logNarration('toggle: demo play', { startAt })
                 syncPlayhead(startAt, true)
                 prevPlayheadRef.current = startAt
                 // Clear the saved pause state since we're resuming
@@ -814,21 +938,41 @@ export function NarrationProvider({
         }
 
         const audio = audioRef.current ?? audioElement
-        if (!audio) return
+        if (!audio) {
+            logNarration('toggle ignored: missing audio element')
+            return
+        }
 
         if (audio.paused) {
             const startAt = getPlaybackStartTime()
+            logNarration('toggle: audio play', {
+                startAt,
+                audioCurrentTime: audio.currentTime,
+                readyState: audio.readyState,
+            })
             syncPlayhead(startAt, true)
             prevPlayheadRef.current = startAt
             // Clear the saved pause state since we're resuming
             lastPausedTimeRef.current = null
             setPausedCheckpoint(null)
             if (Math.abs(audio.currentTime - startAt) > 0.02) {
+                logNarration('toggle: setting audio currentTime', {
+                    from: audio.currentTime,
+                    to: startAt,
+                })
                 audio.currentTime = startAt
             }
             void audio.play().then(
-                () => setIsPlaying(true),
                 () => {
+                    logNarration('toggle: audio play resolved', {
+                        currentTime: audio.currentTime,
+                    })
+                    setIsPlaying(true)
+                },
+                (error) => {
+                    logNarration('toggle: audio play rejected', {
+                        error: String(error),
+                    })
                     setAudioFailed(true)
                     setIsPlaying(false)
                 },
@@ -836,6 +980,9 @@ export function NarrationProvider({
         } else {
             // Save the current time for reliable resume
             lastPausedTimeRef.current = audio.currentTime
+            logNarration('toggle: audio pause', {
+                savedPauseTime: lastPausedTimeRef.current,
+            })
             syncPlayhead(audio.currentTime, true)
             setPausedCheckpoint(null)
             audio.pause()
@@ -923,6 +1070,11 @@ export function NarrationProvider({
 
         const onLoadedMetadata = () => {
             const d = Number.isFinite(audio.duration) ? audio.duration : 0
+            logNarration('audio loaded metadata', {
+                duration: d,
+                readyState: audio.readyState,
+                src: audio.currentSrc || audio.src,
+            })
             setDuration(d)
             setIsReady(d > 0 || mockDuration > 0)
             setAudioFailed(false)
@@ -932,17 +1084,33 @@ export function NarrationProvider({
             syncPlayhead(audio.currentTime)
         }
 
-        const onPlay = () => setIsPlaying(true)
+        const onPlay = () => {
+            logNarration('audio event: play', {
+                currentTime: audio.currentTime,
+            })
+            setIsPlaying(true)
+        }
         const onPause = () => {
+            logNarration('audio event: pause', {
+                currentTime: audio.currentTime,
+            })
             setIsPlaying(false)
             syncPlayhead(audio.currentTime, true)
         }
         const onEnded = () => {
+            logNarration('audio event: ended', {
+                currentTime: audio.currentTime,
+            })
             setIsPlaying(false)
             syncPlayhead(0, true)
         }
 
         const onError = () => {
+            logNarration('audio event: error', {
+                error: audio.error?.message,
+                code: audio.error?.code,
+                src: audio.currentSrc || audio.src,
+            })
             setAudioFailed(true)
             setIsPlaying(false)
             setIsReady(mockDuration > 0)
