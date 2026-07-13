@@ -283,6 +283,7 @@ export function NarrationProvider({
     const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(
         null,
     )
+    const [resolvedAudioSrc, setResolvedAudioSrc] = useState(transcript.audioSrc)
     const prevAudioSrcRef = useRef(transcript.audioSrc)
     const playheadRef = useRef(0)
     const orderCounterRef = useRef(0)
@@ -295,6 +296,7 @@ export function NarrationProvider({
     const [isPlaying, setIsPlaying] = useState(false)
     const [isReady, setIsReady] = useState(false)
     const [audioFailed, setAudioFailed] = useState(false)
+    const [isResolvingAudio, setIsResolvingAudio] = useState(false)
     const [scrollProgress, setScrollProgress] = useState(0)
     const [isActiveWordInView, setIsActiveWordInView] = useState(true)
     const [isActiveWordAboveViewport, setIsActiveWordAboveViewport] =
@@ -448,6 +450,78 @@ export function NarrationProvider({
 
     const lastStateUpdateRef = useRef(0)
     const STATE_UPDATE_INTERVAL = 100
+
+    useEffect(() => {
+        logNarration('provider mounted', {
+            audioSrc: transcript.audioSrc,
+            segmentCount: transcript.segments.length,
+            durationFromTranscript: mockDuration,
+        })
+    }, [mockDuration, transcript.audioSrc, transcript.segments.length])
+
+    useEffect(() => {
+        if (demoModeProp || !transcript.audioSrc) {
+            setResolvedAudioSrc(transcript.audioSrc)
+            return
+        }
+
+        const controller = new AbortController()
+        let objectUrl: string | null = null
+        let cancelled = false
+
+        setIsResolvingAudio(true)
+        setIsReady(false)
+        setAudioFailed(false)
+        setResolvedAudioSrc('')
+
+        logNarration('audio blob fetch start', {
+            src: transcript.audioSrc,
+            reason:
+                'Cloudflare Pages returns 200 for Range requests, so seeking is done against a fully fetched blob URL.',
+        })
+
+        fetch(transcript.audioSrc, { signal: controller.signal })
+            .then(async (response) => {
+                logNarration('audio blob fetch response', {
+                    ok: response.ok,
+                    status: response.status,
+                    contentType: response.headers.get('content-type'),
+                    contentLength: response.headers.get('content-length'),
+                    acceptRanges: response.headers.get('accept-ranges'),
+                })
+
+                if (!response.ok) {
+                    throw new Error(`Audio fetch failed: ${response.status}`)
+                }
+
+                return response.blob()
+            })
+            .then((blob) => {
+                if (cancelled) return
+                objectUrl = URL.createObjectURL(blob)
+                logNarration('audio blob ready', {
+                    bytes: blob.size,
+                    type: blob.type,
+                })
+                setResolvedAudioSrc(objectUrl)
+                setIsResolvingAudio(false)
+            })
+            .catch((error) => {
+                if (cancelled || controller.signal.aborted) return
+                logNarration('audio blob fetch failed; falling back to URL', {
+                    error: String(error),
+                    src: transcript.audioSrc,
+                })
+                setResolvedAudioSrc(transcript.audioSrc)
+                setIsResolvingAudio(false)
+            })
+
+        return () => {
+            cancelled = true
+            controller.abort()
+            if (objectUrl) URL.revokeObjectURL(objectUrl)
+        }
+    }, [demoModeProp, transcript.audioSrc])
 
     const syncPlayhead = useCallback(
         (time: number, forceStateUpdate = false) => {
@@ -1173,7 +1247,7 @@ export function NarrationProvider({
             currentTime,
             duration: isDemo ? mockDuration : duration,
             isPlaying,
-            isReady: isDemo ? mockDuration > 0 : isReady,
+            isReady: isDemo ? mockDuration > 0 : isReady && !isResolvingAudio,
             isDemo,
             scrollProgress,
             toggle,
@@ -1204,6 +1278,7 @@ export function NarrationProvider({
             mockDuration,
             isPlaying,
             isReady,
+            isResolvingAudio,
             isDemo,
             scrollProgress,
             toggle,
@@ -1232,14 +1307,14 @@ export function NarrationProvider({
     return (
         <ChapterRegistryContext.Provider value={registryContext}>
             <NarrationContext.Provider value={value}>
-                {!demoModeProp && transcript.audioSrc ? (
+                {!demoModeProp && resolvedAudioSrc ? (
                     <audio
                         ref={(node) => {
                             audioRef.current = node
                             setAudioElement(node)
                         }}
-                        src={transcript.audioSrc}
-                        preload="metadata"
+                        src={resolvedAudioSrc}
+                        preload="auto"
                         className="sr-only"
                     />
                 ) : null}
