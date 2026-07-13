@@ -4,6 +4,10 @@ A starter repo for building interactive narrated articles with synced audio, wor
 
 This repo includes a complete example article: the cloud animation tutorial from Emanuele's portfolio. The cloud is just the demo content; the reusable pieces are the narration system, transcript format, audio player, magic cursor, and checkpoint/highlight flow.
 
+## Source of truth
+
+This repo is the canonical codebase for the interactive article starter. Edit and push changes here; the portfolio implementation was only the original extraction source.
+
 ## What is included
 
 - `src/components/blog/NarrationContext.tsx` manages audio playback, seeking, checkpoints, and the shared playhead.
