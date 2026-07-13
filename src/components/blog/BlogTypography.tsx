@@ -122,7 +122,7 @@ export function BlogAccentLink({
 export function BlogBodySm({ children, className = '', ...props }: ParagraphProps) {
     return (
         <p
-            className={`font-mori m-0 text-base leading-normal text-[#989898] ${className}`.trim()}
+            className={`font-sans m-0 text-base leading-normal text-[#989898] ${className}`.trim()}
             {...props}
         >
             {children}

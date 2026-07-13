@@ -80,24 +80,6 @@
     --prompt-cursor-width: 2;
 }
 
-/* PP Mori variable font – public/fonts/PP Mori Variable/ */
-@font-face {
-    font-family: 'PP Mori';
-    src: url('/fonts/PP Mori Variable/PPMori-Variable.woff2') format('woff2');
-    font-weight: 1 900;
-    font-style: normal;
-    font-display: swap;
-}
-
-/* Cooper Lt BT – display / content headings */
-@font-face {
-    font-family: 'Cooper Lt BT';
-    src: url('/fonts/Cooper Lt BT Light.ttf') format('truetype');
-    font-weight: 300;
-    font-style: normal;
-    font-display: swap;
-}
-
 /* Geist Mono – local fonts */
 @font-face {
     font-family: 'Geist Mono';
@@ -137,14 +119,14 @@
     /* Mono label (banner / bracket style): Geist Mono grey */
     --color-mono-label: #8e8e8e;
 
-    /* Typography – PP Mori + Cooper Lt BT */
+    /* Typography – Inter-first system stack, plus local Geist Mono for code */
     --font-family-sans:
-        'PP Mori', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    --font-family-mori: 'PP Mori', sans-serif;
-    --font-family-serif: 'Cooper Lt BT', Georgia, serif;
+        Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        'Segoe UI', sans-serif;
+    --font-family-serif: var(--font-family-sans);
     --font-family-mono: 'Geist Mono', ui-monospace, monospace;
 
-    /* Mori-specific sizes (from design: greeting 18px, body 17px, headline 64px) */
+    /* Article sizes */
     --font-size-greeting: 1.125rem; /* 18px */
     --font-size-body: 1.0625rem; /* 17px */
     --font-size-h1: 3rem; /* 48px base, 64px md */
@@ -395,10 +377,6 @@
     }
     .bg-chip-bg {
         background-color: var(--color-chip-bg);
-    }
-
-    .font-mori {
-        font-family: 'PP Mori', sans-serif !important;
     }
 
     .font-serif {
@@ -759,7 +737,7 @@ html {
 
 body {
     margin: 0;
-    font-family: 'PP Mori', sans-serif;
+    font-family: var(--font-family-sans);
     background-color: #141414;
     color: var(--color-black);
     -webkit-font-smoothing: antialiased;
