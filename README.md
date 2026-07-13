@@ -2,6 +2,8 @@
 
 A starter repo for building interactive narrated articles with synced audio, word highlighting, checkpoints, and a magic cursor.
 
+Live demo: https://interactive-article.pages.dev
+
 This repo includes a complete example article: the cloud animation tutorial from Emanuele's portfolio. The cloud is just the demo content; the reusable pieces are the narration system, transcript format, audio player, magic cursor, and checkpoint/highlight flow.
 
 ## Source of truth
