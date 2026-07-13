@@ -25,10 +25,6 @@ const WORD_MORPH_SPRING = {
 
 const NARRATION_WORD_SELECTOR = '[data-narration-word]'
 
-function logMagicCursor(event: string, details?: Record<string, unknown>) {
-    console.log(`[magic-cursor] ${event}`, details ?? {})
-}
-
 type CursorRect = {
     left: number
     top: number
@@ -223,20 +219,8 @@ export function MagicCursor() {
             const start = Number.parseFloat(
                 word.getAttribute('data-word-start') ?? '',
             )
-            if (!Number.isFinite(start)) {
-                logMagicCursor('word click ignored: invalid start time', {
-                    text: word.textContent,
-                    rawStart: word.getAttribute('data-word-start'),
-                })
-                return
-            }
+            if (!Number.isFinite(start)) return
 
-            logMagicCursor('word click playFromTime', {
-                text: word.textContent,
-                start,
-                segmentId: word.getAttribute('data-segment-id'),
-                wordIndex: word.getAttribute('data-word-index'),
-            })
             playFromTime(start)
         }
 

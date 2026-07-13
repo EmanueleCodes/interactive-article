@@ -288,7 +288,6 @@ export function NarratedText({
     const paragraphs = useMemo(() => groupWordsIntoParagraphs(words), [words])
 
     if (!segment) {
-        console.warn(`NarratedText: unknown segment "${segmentId}"`)
         return null
     }
 
@@ -300,9 +299,6 @@ export function NarratedText({
     if (paragraphIndex !== undefined) {
         const paragraph = paragraphs[paragraphIndex]
         if (!paragraph) {
-            console.warn(
-                `NarratedText: paragraph ${paragraphIndex} missing on "${segmentId}"`,
-            )
             return null
         }
 
